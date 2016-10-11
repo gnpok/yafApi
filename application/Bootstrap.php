@@ -21,8 +21,10 @@ class Bootstrap extends Yaf_Bootstrap_Abstract{
 		$dispatcher->registerPlugin($objSamplePlugin);
 	}
 
-	public function _initFunctions(Yaf_Dispatcher $dispatcher) {
-		//注册公共方法
+	public function _initOthers(Yaf_Dispatcher $dispatcher) {
+		//若文件不存在 不会报错
+		Yaf_Loader::import(APP_PATH.'Common.php');//加载公共函数
+		Yaf_Loader::import(APPLICATION_PATH.'/vendor/autoload.php');//加载composer autoload文件
 	}
 
 	public function _initDatabase(Yaf_Dispatcher $dispatcher) {
@@ -35,6 +37,7 @@ class Bootstrap extends Yaf_Bootstrap_Abstract{
 
 	public function _initRoute(Yaf_Dispatcher $dispatcher) {
 		//在这里注册自己的路由协议,默认使用简单路由
+		/*
 		$router = Yaf_Dispatcher::getInstance()->getRouter();
         $routeConfig = array(
             "item" => array(
@@ -61,7 +64,7 @@ class Bootstrap extends Yaf_Bootstrap_Abstract{
             ),
         );
         $test = new Yaf_Config_Simple($routeConfig);
-        $router->addConfig(new Yaf_Config_Simple($routeConfig));
+        $router->addConfig(new Yaf_Config_Simple($routeConfig));*/
 	}
 	
 	public function _initView(Yaf_Dispatcher $dispatcher){
