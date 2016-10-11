@@ -8,6 +8,10 @@ class SafePlugin extends Yaf_Plugin_Abstract
 
     public function routerStartup(Yaf_Request_Abstract $request, Yaf_Response_Abstract $response)
     {
+        if ($_SERVER['PATH_INFO'] == '/favicon.ico' || $_SERVER['REQUEST_URI'] == '/favicon.ico') {
+            return false;
+        }
+
         $url_arr = array(
             'xss' => "\\=\\+\\/v(?:8|9|\\+|\\/)|\\%0acontent\\-(?:id|location|type|transfer\\-encoding)",
         );
@@ -44,7 +48,7 @@ class SafePlugin extends Yaf_Plugin_Abstract
         foreach ($v as $key => $value) {
             if (preg_match("/" . $value . "/is", $str) == 1 || preg_match("/" . $value . "/is", urlencode($str)) == 1) {
                 //W_log("<br>IP: ".$_SERVER["REMOTE_ADDR"]."<br>ʱ��: ".strftime("%Y-%m-%d %H:%M:%S")."<br>ҳ��:".$_SERVER["PHP_SELF"]."<br>�ύ��ʽ: ".$_SERVER["REQUEST_METHOD"]."<br>�ύ����: ".$str);
-                throw new Exception('attact');
+                throw new Yaf_Exception('请提交正确的参数');
                 exit();
             }
         }
