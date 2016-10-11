@@ -21,11 +21,51 @@ class Bootstrap extends Yaf_Bootstrap_Abstract{
 		$dispatcher->registerPlugin($objSamplePlugin);
 	}
 
+	public function _initFunctions(Yaf_Dispatcher $dispatcher) {
+		//注册公共方法
+	}
+
+	public function _initDatabase(Yaf_Dispatcher $dispatcher) {
+		//注册数据库使用	
+	}
+
+	public function _initRedis(Yaf_Dispatcher $dispatcher) {
+		//注册redis使用
+	}
+
 	public function _initRoute(Yaf_Dispatcher $dispatcher) {
 		//在这里注册自己的路由协议,默认使用简单路由
+		$router = Yaf_Dispatcher::getInstance()->getRouter();
+        $routeConfig = array(
+            "item" => array(
+                "type"  => "regex",
+                "match" => "#^/(software|game)/(.*).html$#",
+                "route" => array('action' => 'item'),
+                "map" => array( 1 => 'data_type', 2 => 'docid' ),
+            ),
+            //正则匹配
+            "category" => array(
+                "type"  => "regex",
+                "match" => "#^/(software|game|video)/(.*)/(list_(.*).html)?$#",
+                "route" => array('action' => 'list' ),
+                "map" => array( 1 => 'data_type', 2 => 'cid',4 => 'page_num' ),
+            ),
+            //使用动态结果 :a 表示action
+            "name" => array(
+               "type"  => "rewrite",        //Yaf_Route_Rewrite route
+               "match" => "/user-list/:a/:id", //match only /user-list/开头的
+               "route" => array(
+                   'controller' => "user",  //route to user controller,
+                   'action'     => ":a",  //使用动态的action
+               ),
+            ),
+        );
+        $test = new Yaf_Config_Simple($routeConfig);
+        $router->addConfig(new Yaf_Config_Simple($routeConfig));
 	}
 	
 	public function _initView(Yaf_Dispatcher $dispatcher){
 		//在这里注册自己的view控制器，例如smarty,firekylin
+		$dispatcher->disableView();//关闭view输出
 	}
 }
