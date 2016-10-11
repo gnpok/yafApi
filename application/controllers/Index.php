@@ -13,6 +13,7 @@ class IndexController extends Yaf_Controller_Abstract {
      * 对于如下的例子, 当访问http://yourhost/test/index/index/index/name/vagrant 的时候, 你就会发现不同
      */
 	public function indexAction($name = "Stranger") {
+	    echo 111;
 		//1. fetch query
 		$get = $this->getRequest()->getQuery("get", "default value");
 
