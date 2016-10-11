@@ -24,7 +24,6 @@ class MysqlController extends Yaf_Controller_Abstract
     {
         $order = new OrderModel();
         $list = $order->getList();
-        p($list);
     }
 
     public function deleteAction()
