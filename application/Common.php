@@ -30,3 +30,21 @@ if (!function_exists('curlGet')) {
         return $response;
     }
 }
+
+if (!function_exists('curlPost')) {
+    /**
+     * 基础post方法
+     * @param $url
+     * @param array $postData
+     * @param int $timeout
+     * @return mixed|string
+     */
+    function curlPost($url, $postData = [], $timeout = 10)
+    {
+        $ch = new CURL();
+        $ch->include_response_headers(0);
+        $response = $ch->post($url, $postData, '', $timeout);
+        $ch->close();
+        return $response;
+    }
+}
