@@ -8,6 +8,17 @@ if (!function_exists('p')) {
     }
 }
 
+if (!function_exists('get')) {
+    function get($name = '', $default = '', $func = '')
+    {
+        if (empty($name)) {
+
+        } else {
+
+        }
+    }
+}
+
 if (!function_exists('curlGet')) {
     /**
      * 基础get请求
@@ -23,7 +34,7 @@ if (!function_exists('curlGet')) {
             $sign = strpos($url, '?') === false ? '?' : '&';
             $url = $url . $sign . $urlData;
         }
-        $ch = new CURL();
+        $ch = new CurlLibrary();
         $ch->include_response_headers(0);
         $response = $ch->get($url, null, $timeout);
         $ch->close();
@@ -41,7 +52,7 @@ if (!function_exists('curlPost')) {
      */
     function curlPost($url, $postData = [], $timeout = 10)
     {
-        $ch = new CURL();
+        $ch = new CurlLibrary();
         $ch->include_response_headers(0);
         $response = $ch->post($url, $postData, '', $timeout);
         $ch->close();

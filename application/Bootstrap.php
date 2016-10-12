@@ -14,7 +14,6 @@ class Bootstrap extends Yaf_Bootstrap_Abstract
 
     public function _initConfig()
     {
-        //把配置保存起来
         $objConfig = Yaf_Application::app()->getConfig();
         Yaf_Registry::set('config', $objConfig);
         $this->arrConfig = $objConfig->toArray();
@@ -33,25 +32,29 @@ class Bootstrap extends Yaf_Bootstrap_Abstract
     }
 
 
-    public function _initDatabase(Yaf_Dispatcher $dispatcher)
+    public function _initServices(Yaf_Dispatcher $dispatcher)
     {
-        //注册数据库使用
-        $mysql = $this->arrConfig['mysql'];
+        $mysqlConfig = $this->arrConfig['mysql'];
         $db = new MysqliDb (Array(
-            'host' => $mysql['host'],
-            'username' => $mysql['user'],
-            'password' => $mysql['password'],
-            'db' => $mysql['db'],
-            'port' => $mysql['port'],
-            'prefix' => $mysql['prefix'],
+            'host' => $mysqlConfig['host'],
+            'username' => $mysqlConfig['user'],
+            'password' => $mysqlConfig['password'],
+            'db' => $mysqlConfig['db'],
+            'port' => $mysqlConfig['port'],
+            'prefix' => $mysqlConfig['prefix'],
             'charset' => 'utf8'));
+
+        $redisConfig = $this->arrConfig['redis'];
+        $redis = new Predis\Client(array(
+            'host' => $redisConfig['host'],
+            'port' => $redisConfig['port'],
+            'database' => $redisConfig['db'],
+        ));
+
         Yaf_Registry::set($this->arrConfig['set']['database'], $db);
+        Yaf_Registry::set($this->arrConfig['set']['redis'], $redis);
     }
 
-    public function _initRedis(Yaf_Dispatcher $dispatcher)
-    {
-        //注册redis使用
-    }
 
     public function _initRoute(Yaf_Dispatcher $dispatcher)
     {
