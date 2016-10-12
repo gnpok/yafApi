@@ -1,5 +1,7 @@
 {
-    "require": {
-        "joshcam/mysqli-database-class": "dev-master"
-    }
+  "require": {
+    "joshcam/mysqli-database-class": "dev-master",
+    "monolog/monolog": "^1.21",
+    "predis/predis": "1.1.*@dev"
+  }
 }
