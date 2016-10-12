@@ -8,10 +8,6 @@ class SafePlugin extends Yaf_Plugin_Abstract
 
     public function routerStartup(Yaf_Request_Abstract $request, Yaf_Response_Abstract $response)
     {
-        if ($_SERVER['PATH_INFO'] == '/favicon.ico' || $_SERVER['REQUEST_URI'] == '/favicon.ico') {
-            return false;
-        }
-
         $url_arr = array(
             'xss' => "\\=\\+\\/v(?:8|9|\\+|\\/)|\\%0acontent\\-(?:id|location|type|transfer\\-encoding)",
         );
@@ -26,11 +22,7 @@ class SafePlugin extends Yaf_Plugin_Abstract
         $query_string = empty($_SERVER["QUERY_STRING"]) ? array() : array($_SERVER["QUERY_STRING"]);
 
         self::check_data($query_string, $url_arr);
-        self::check_data($_GET, $args_arr);
-        self::check_data($_POST, $args_arr);
-        self::check_data($_COOKIE, $args_arr);
-        self::check_data($referer, $args_arr);
-
+        self::check_data(array($_GET, $_POST, $_COOKIE, $referer), $args_arr);
     }
 
     private function check_data($arr, $v)
@@ -47,20 +39,20 @@ class SafePlugin extends Yaf_Plugin_Abstract
     {
         foreach ($v as $key => $value) {
             if (preg_match("/" . $value . "/is", $str) == 1 || preg_match("/" . $value . "/is", urlencode($str)) == 1) {
-                //W_log("<br>IP: ".$_SERVER["REMOTE_ADDR"]."<br>ʱ��: ".strftime("%Y-%m-%d %H:%M:%S")."<br>ҳ��:".$_SERVER["PHP_SELF"]."<br>�ύ��ʽ: ".$_SERVER["REQUEST_METHOD"]."<br>�ύ����: ".$str);
-                throw new Yaf_Exception('请提交正确的参数');
-                exit();
+                self::W_log();
+                throw new Yaf_Exception('attack-请提交正确参数');
             }
+            $v[$key] = htmlspecialchars($value);
         }
     }
 
-    private function W_log($log)
+    private function W_log()
     {
-        $logpath = $_SERVER["DOCUMENT_ROOT"] . "/log.txt";
-        $log_f = fopen($logpath, "a+");
-        fputs($log_f, $log . "\r\n");
-        fclose($log_f);
+        $path = LogLibrary::logPath('attack');
+        $data = [
+            'IP' => $_SERVER['REMOTE_ADDR'],
+            'URL' => $_SERVER['REQUEST_URI']
+        ];
+        LogLibrary::writeLog($path, '受到攻击', $data);
     }
-
-
 }

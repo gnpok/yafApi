@@ -4,7 +4,7 @@
  * CURL http客户端程序
  *
  */
-class CURL
+class CurlLibrary
 {
     /**
      * Curl handler
