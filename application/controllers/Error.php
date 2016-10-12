@@ -18,7 +18,7 @@ class ErrorController extends Yaf_Controller_Abstract
         } elseif ($exception instanceof Yaf_Exception_RouterFailed) {
             echo '路由失败';
         } else {
-            echo $exception->getMessage();
+            echo $exception->getMessage(),'___YA';
         }
     }
 }

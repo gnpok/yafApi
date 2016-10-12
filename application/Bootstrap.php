@@ -51,7 +51,7 @@ class Bootstrap extends Yaf_Bootstrap_Abstract
             'database' => $redisConfig['db'],
         ));
 
-        Yaf_Registry::set($this->arrConfig['set']['database'], $db);
+        Yaf_Registry::set($this->arrConfig['set']['database'], $database);
         Yaf_Registry::set($this->arrConfig['set']['redis'], $redis);
     }
 

@@ -11,12 +11,12 @@ if (!function_exists('p')) {
 if (!function_exists('get')) {
     function get($name = '', $default = '', $func = '')
     {
-        if (empty($name)) {
+        $request = Yaf_Dispatcher::getInstance()->getRequest();
+        $get = $request->getQuery($name,$default);
 
-        } else {
-
-        }
     }
+
+    
 }
 
 if (!function_exists('curlGet')) {
