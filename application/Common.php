@@ -12,11 +12,31 @@ if (!function_exists('get')) {
     function get($name = '', $default = '', $func = '')
     {
         $request = Yaf_Dispatcher::getInstance()->getRequest();
-        $get = $request->getQuery($name,$default);
+        $get = $request->getQuery($name, $default);
 
     }
+}
 
-    
+if (!function_exists('jsonReturn')) {
+    /**
+     * json返回数据
+     * @param int $code 状态码 0:执行或验证成功  不为0：执行或验证失败
+     * @param string|array $value 信息 或数组数据
+     * @return bool $exit 是否要退出程序
+     */
+    function jsonReturn($code, $value, $exit = false)
+    {
+        $key = is_array($value) ? 'data' : 'msg';
+        $response = [
+            'code' => $code,
+            $key => $value
+        ];
+        echo json_encode($response);
+
+        if ($code != 0 || $exit) {
+            return false;
+        }
+    }
 }
 
 if (!function_exists('curlGet')) {
