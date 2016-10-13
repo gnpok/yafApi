@@ -8,6 +8,7 @@ class HttpServer
     public static $post;
     public static $header;
     public static $server;
+    public static $cookies;
     private $application;
 
     public function __construct()
@@ -35,6 +36,7 @@ class HttpServer
             HttpServer::$header = isset($request->header) ? $request->header : [];
             HttpServer::$get = isset($request->get) ? $request->get : [];
             HttpServer::$post = isset($request->post) ? $request->post : [];
+            HttpServer::$cookies = isset($request->cookie) ? $request->cookie : [];
 
             // TODO handle img
             ob_start();
@@ -43,13 +45,14 @@ class HttpServer
                 $this->application->getDispatcher()->dispatch($yaf_request);
                 // unset(Yaf_Application::app());
             } catch (Yaf_Exception $e) {
-                var_dump($e);
+                p($e->getMessage());
+                jsonReturn(404,'not found');
             }
 
             $result = ob_get_contents();
             ob_end_clean();
             // add Header
-
+            $response->header('Content-Type', 'application/json; charset=utf-8');
             // add cookies
 
             // set status

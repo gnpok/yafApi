@@ -22,6 +22,25 @@ class SafePlugin extends Yaf_Plugin_Abstract
         $query_string = empty($_SERVER["QUERY_STRING"]) ? array() : array($_SERVER["QUERY_STRING"]);
 
         self::check_data($query_string, $url_arr);
+        isset($_SERVER['SHELL']) ? self::swooleMode($referer,$args_arr) : self::normalMode($referer,$args_arr);       
+    }
+
+    /*
+     *swoole模式下获取请求参数
+     */
+    private function swooleMode($referer,$args_arr)
+    {
+        $_GET = HttpServer::$get;
+        $_POST = HttpServer::$post;
+        $_COOKIE = HttpServer::$cookies;
+        self::check_data(array($_GET, $_POST, $_COOKIE, $referer), $args_arr);
+    }
+
+    /*
+     *正常模式下获取请求参数
+     */
+    private function normalMode($referer,$args_arr)
+    {
         self::check_data(array($_GET, $_POST, $_COOKIE, $referer), $args_arr);
     }
 
@@ -39,7 +58,7 @@ class SafePlugin extends Yaf_Plugin_Abstract
     {
         foreach ($v as $key => $value) {
             if (preg_match("/" . $value . "/is", $str) == 1 || preg_match("/" . $value . "/is", urlencode($str)) == 1) {
-                self::W_log();
+                // self::W_log();
                 throw new Yaf_Exception('attack-请提交正确参数');
             }
             $v[$key] = htmlspecialchars($value);
@@ -48,6 +67,7 @@ class SafePlugin extends Yaf_Plugin_Abstract
 
     private function W_log()
     {
+        
         $path = LogLibrary::logPath('attack');
         $data = [
             'IP' => $_SERVER['REMOTE_ADDR'],
