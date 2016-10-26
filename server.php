@@ -14,7 +14,7 @@ class HttpServer
     public static $rawContent;
     private $application;
 
-    public function __construct()
+    private function __construct()
     {
         $config = new Yaf_Config_Ini(dirname(__FILE__) . '/conf/swoole.ini');
         $config = $config->get('swoole');
@@ -35,17 +35,18 @@ class HttpServer
         $http->on('task', array($this, 'onTask'));
         $http->on('finish', array($this, 'onFinish'));
 
-        $http->on('request', function ($request, $response) {
+        $http->on('request', function ($request, $response) use($http) {
             //请求过滤,会请求2次
             if ($request->server['path_info'] == '/favicon.ico' || $request->server['request_uri'] == '/favicon.ico') {
                 return $response->end();
             }
 
-            HttpServer::$header = $request->header;
-            HttpServer::$get = $request->get;
-            HttpServer::$post = $request->post;
-            HttpServer::$cookies = $request->cookie;
-            HttpServer::$rawContent = $request->rawContent;
+            HttpServer::$header     = isset($request->header)   ? $request->header  : [];
+            HttpServer::$get        = isset($request->get)      ? $request->get     : [];
+            HttpServer::$post       = isset($request->post)     ? $request->post    : [];
+            HttpServer::$cookies    = isset($request->cookies)  ? $request->cookies : [];
+            HttpServer::$rawContent = $request->rawContent();
+            HttpServer::$http       = $http;
 
             ob_start();
             try {
@@ -54,20 +55,19 @@ class HttpServer
             } catch (Yaf_Exception $e) {
                 jsonReturn(404,'not found');
             }
-
             $result = ob_get_contents();
             ob_end_clean();
+
             $response->header('Content-Type', 'application/json; charset=utf-8');
             $response->end($result);
         });
-        $http->start();
 
-        self::$http = $http;
+        $http->start();
     }
 
     public function onWorkerStart($serv, $worker_id)
     {
-        define('APPLICATION_PATH', dirname(__FILE__) . '/..');
+        define('APPLICATION_PATH', dirname(__FILE__));
         define('APP_PATH', APPLICATION_PATH . '/application/');
 
         $this->application = new Yaf_Application (APPLICATION_PATH . "/conf/application.ini");
@@ -82,8 +82,7 @@ class HttpServer
 
     public function onTask($serv, $taskId, $fromId, $data)
     {
-        # code...
-        echo $data."\n";
+        $task = new TaskLibrary($data);
     }
 
     public function onFinish($serv, $taskId, $data)
@@ -94,7 +93,7 @@ class HttpServer
     public static function getInstance()
     {
         if (!self::$instance) {
-            self::$instance = new HttpServer;
+            self::$instance = new self();
         }
         return self::$instance;
     }
