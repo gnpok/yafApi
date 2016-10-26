@@ -21,9 +21,7 @@ class Bootstrap extends Yaf_Bootstrap_Abstract
 
     public function _initOthers(Yaf_Dispatcher $dispatcher)
     {
-        //若文件不存在 不会报错
-        Yaf_Loader::import(APP_PATH . 'Common.php');//加载公共函数
-        Yaf_Loader::import(APPLICATION_PATH . '/vendor/autoload.php');//加载composer autoload文件
+        Yaf_Loader::import(APP_PATH.'Common.php');
     }
 
     public function _initPlugin(Yaf_Dispatcher $dispatcher)

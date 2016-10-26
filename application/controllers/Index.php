@@ -17,12 +17,12 @@ class IndexController extends Yaf_Controller_Abstract
     public function indexAction($name = "Stranger")
     {
         //1. fetch query
-        $get = $this->getRequest()->getQuery();
-        $post = $this->getRequest()->getPost();
-
+        $get = HttpServer::$get;
+        var_dump($get);
+        
+        HttpServer::$http->task(time());
         //2. fetch model
         $model = new SampleModel();
-
         //3. assign
         $this->getView()->assign("content", $model->selectSample());
         $this->getView()->assign("name", $name);

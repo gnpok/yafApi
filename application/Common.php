@@ -8,14 +8,6 @@ if (!function_exists('p')) {
     }
 }
 
-if (!function_exists('get')) {
-    function get($name = '', $default = '', $func = '')
-    {
-        $request = Yaf_Dispatcher::getInstance()->getRequest();
-        $get = $request->getQuery($name, $default);
-
-    }
-}
 
 if (!function_exists('jsonReturn')) {
     /**
