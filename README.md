@@ -22,8 +22,8 @@ $this->application->bootstrap()->run();
 //在controller中调用则会报出如下错误
 PHP Fatal error:  Call to a member function task()
 
-**//这边我没有能理解为什么，还请求大神解答**
 ```
+**这边我没有能理解为什么，还请求大神解答**
 
 ##**使用说明**
 ```
