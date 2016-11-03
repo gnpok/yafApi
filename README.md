@@ -8,7 +8,7 @@
 可以使用异步task任务,如异步发送邮件，发送短信验证码等
 
 注意:  
-1.  若你的接口需要多版本控制，需要配置modules，或参考[xuebingwang](https://github.com/xuebingwang/xbw-swoole-yaf)
+1.  若你的接口需要多版本控制，需要配置modules，或参考[xuebingwang](https://github.com/xuebingwang/xbw-swoole-yaf)  
 2.  调用task时候注意事项  
 ```
 //1.当使用如下代码时候，可以在controller中调用task
