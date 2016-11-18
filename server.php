@@ -13,22 +13,26 @@ class HttpServer
     public static $cookies;
     public static $rawContent;
     private $application;
+    private $environment = 'develop'; //product OR develop
 
     private function __construct()
     {
-        $config = new Yaf_Config_Ini(dirname(__FILE__) . '/conf/swoole.ini');
-        $config = $config->get('swoole');
 
-        $http = new swoole_http_server($config->host, $config->port);
+        $configObj = new Yaf_Config_Ini(dirname(__FILE__) . '/conf/application.ini');
+        $configArr = $configObj->toArray();
+        $config = $configArr[$this->environment]['swoole'];
+        extract($config);
+
+        $http = new swoole_http_server($host, $port);
         $http->set(array(
-            'worker_num'                => $config->worker_num,
-            'task_worker_num'           => $config->task_worker_num,
-            'daemonize'                 => $config->daemonize,
-            'dispatch_mode'             => $config->dispatch_mode,
-            'open_tcp_nodelay'          => $config->open_tcp_nodelay,
-            'log_file'                  => $config->log_file,
-            'heartbeat_check_interval'  => $config->heartbeat_check_interval,
-            'heartbeat_idle_time'       => $config->heartbeat_idle_time,
+            'worker_num'                => $worker_num,
+            'task_worker_num'           => $task_worker_num,
+            'daemonize'                 => $daemonize,
+            'dispatch_mode'             => $dispatch_mode,
+            'open_tcp_nodelay'          => $open_tcp_nodelay,
+            'log_file'                  => $log_file,
+            'heartbeat_check_interval'  => $heartbeat_check_interval,
+            'heartbeat_idle_time'       => $heartbeat_idle_time,
         ));
 
         $http->on('WorkerStart', array($this, 'onWorkerStart'));
@@ -37,7 +41,7 @@ class HttpServer
 
         $http->on('request', function ($request, $response) use($http) {
             //请求过滤,会请求2次
-            if ($request->server['path_info'] == '/favicon.ico' || $request->server['request_uri'] == '/favicon.ico') {
+            if(in_array('/favicon.ico', [$request->server['path_info'],$request->server['request_uri']])){
                 return $response->end();
             }
 
@@ -70,7 +74,29 @@ class HttpServer
         define('APPLICATION_PATH', dirname(__FILE__));
         define('APP_PATH', APPLICATION_PATH . '/application/');
 
-        $this->application = new Yaf_Application (APPLICATION_PATH . "/conf/application.ini");
+        switch ($this->environment)
+        {
+            case 'develop':
+                error_reporting(-1);
+                ini_set('display_errors', 1);
+                $application = new Yaf_Application(APPLICATION_PATH . "/conf/application.ini",'develop');
+            break;
+
+            case 'product':
+                ini_set('display_errors', 0);
+                if (version_compare(PHP_VERSION, '5.3', '>='))
+                {
+                    error_reporting(E_ALL & ~E_NOTICE & ~E_DEPRECATED & ~E_STRICT & ~E_USER_NOTICE & ~E_USER_DEPRECATED);
+                }
+                else
+                {
+                    error_reporting(E_ALL & ~E_NOTICE & ~E_STRICT & ~E_USER_NOTICE);
+                }
+                $application = new Yaf_Application(APPLICATION_PATH . "/conf/application.ini");
+            break;
+        }
+
+        $this->application = $application;
         $this->application->bootstrap();
         
         if ($worker_id >= $serv->setting['worker_num']) {
