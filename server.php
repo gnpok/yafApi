@@ -52,15 +52,18 @@ class HttpServer
             HttpServer::$rawContent = $request->rawContent();
             HttpServer::$http       = $http;
 
-            ob_start();
             try {
-                $yaf_request = new Yaf_Request_Http(HttpServer::$server['request_uri']);
+                ob_start();
+                $yaf_request = new Yaf_Request_Http($request->server['request_uri']);
                 $this->application->getDispatcher()->dispatch($yaf_request);
+                $result = ob_get_contents();
+                ob_end_clean();
             } catch (Yaf_Exception $e) {
-                jsonReturn(404,'not found');
+                $result           = array();
+                $result['code']   = $e->getCode();
+                $result['msg']    = $e->getMessage();
+                $result           = json_encode($result,JSON_UNESCAPED_UNICODE);
             }
-            $result = ob_get_contents();
-            ob_end_clean();
 
             $response->header('Content-Type', 'application/json; charset=utf-8');
             $response->end($result);
@@ -97,8 +100,8 @@ class HttpServer
         }
 
         $this->application = $application;
-        $this->application->bootstrap();
-        
+        $this->application->bootstrap()->run();
+
         if ($worker_id >= $serv->setting['worker_num']) {
             cli_set_process_title("swoolehttp:task_worker");
         } else {
