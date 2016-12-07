@@ -71,3 +71,37 @@ if (!function_exists('curlPost')) {
         return $response;
     }
 }
+
+if (!function_exists('get')) {
+    /**
+     * 获取get参数
+     * @param $name get参数名
+     * @param string $default 默认数值
+     * @param string $func 调用函数
+     * @return mixed
+     */
+    function get($name, $default = '', $func = 'htmlspecialchars')
+    {
+        if (isset($_SERVER['is_swoole']) && $_SERVER['is_swoole']) {
+            $get = isset(HttpServer::$get[$name]) ? HttpServer::$get[$name] : $default;
+        } else {
+            $request = Yaf_Dispatcher::getInstance()->getRequest();
+            $get = $request->getQuery($name, $default);
+        }
+        return call_user_func($func, trim($get));
+    }
+
+}
+
+if (!function_exists('post')) {
+    function post($name, $default = '', $func = 'htmlspecialchars')
+    {
+        if (isset($_SERVER['is_swoole']) && $_SERVER['is_swoole']) {
+            $post = isset(HttpServer::$post[$name]) ? HttpServer::$post[$name] : $default;
+        } else {
+            $request = Yaf_Dispatcher::getInstance()->getRequest();
+            $post = $request->getPost($name, $default);
+        }
+        return call_user_func($func, trim($post));
+    }
+}

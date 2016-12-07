@@ -17,7 +17,6 @@ class HttpServer
 
     private function __construct()
     {
-
         $configObj = new Yaf_Config_Ini(dirname(__FILE__) . '/conf/application.ini');
         $configArr = $configObj->toArray();
         $config = $configArr[$this->environment]['swoole'];
@@ -51,6 +50,7 @@ class HttpServer
             HttpServer::$cookies    = isset($request->cookies)  ? $request->cookies : [];
             HttpServer::$rawContent = $request->rawContent();
             HttpServer::$http       = $http;
+            $_SERVER['is_swoole']   = 1;//添加是否为swoole标识
 
             try {
                 ob_start();
