@@ -19,9 +19,20 @@ class Bootstrap extends Yaf_Bootstrap_Abstract
         $this->arrConfig = $objConfig->toArray();
     }
 
+    /**
+     * 其他 如公共方法
+     */
     public function _initOthers(Yaf_Dispatcher $dispatcher)
     {
-        Yaf_Loader::import(APP_PATH.'Common.php');
+        Yaf_Loader::import(APP_PATH.DIRECTORY_SEPARATOR.'helper'.DIRECTORY_SEPARATOR.'functions.php');
+    }
+
+    /**
+     *初始化服务，如mysql,redis等 
+     */
+    public function _initServices(Yaf_Dispatcher $dispatcher)
+    {
+
     }
 
     public function _initPlugin(Yaf_Dispatcher $dispatcher)
@@ -29,31 +40,9 @@ class Bootstrap extends Yaf_Bootstrap_Abstract
         $dispatcher->registerPlugin(new SafePlugin());//注册一个安全过滤插件
     }
 
-
-    public function _initServices(Yaf_Dispatcher $dispatcher)
-    {
-        $mysqlConfig = $this->arrConfig['mysql'];
-        $db = new MysqliDb (Array(
-            'host' => $mysqlConfig['host'],
-            'username' => $mysqlConfig['user'],
-            'password' => $mysqlConfig['password'],
-            'db' => $mysqlConfig['db'],
-            'port' => $mysqlConfig['port'],
-            'prefix' => $mysqlConfig['prefix'],
-            'charset' => 'utf8'));
-
-        $redisConfig = $this->arrConfig['redis'];
-        $redis = new Predis\Client(array(
-            'host' => $redisConfig['host'],
-            'port' => $redisConfig['port'],
-            'database' => $redisConfig['db'],
-        ));
-
-        Yaf_Registry::set($this->arrConfig['set']['database'], $db);
-        Yaf_Registry::set($this->arrConfig['set']['redis'], $redis);
-    }
-
-
+    /**
+     * 路由协议
+     */
     public function _initRoute(Yaf_Dispatcher $dispatcher)
     {
         //在这里注册自己的路由协议,默认使用简单路由
@@ -91,5 +80,10 @@ class Bootstrap extends Yaf_Bootstrap_Abstract
     {
         //在这里注册自己的view控制器，例如smarty,firekylin
         $dispatcher->disableView();//关闭view输出
+        if(defined('IS_SWOOLE')){
+            echo 111;
+            //若是swoole模式下，关闭默认输出，程序调用
+            $dispatcher->returnResponse(true);
+        }
     }
 }

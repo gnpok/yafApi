@@ -12,6 +12,7 @@ class ErrorController extends Yaf_Controller_Abstract
     //从2.1开始, errorAction支持直接通过参数获取异常
     public function errorAction($exception)
     {
+        return true;//捕获异常后不进行任何输出
         //若为找不到路由错误 则不显示错误信息
         if ($exception instanceof Yaf_Exception_LoadFailed_Controller || $exception instanceof Yaf_Exception_LoadFailed_Action) {
             echo 404;

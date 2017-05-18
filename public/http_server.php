@@ -1,6 +1,12 @@
 <?php
 
-require_once dirname(__FILE__).'/vendor/autoload.php';
+/**
+ * swoole http_server时候走这边
+ */
+
+define ('DS', DIRECTORY_SEPARATOR);
+define ('ROOT_PATH', realpath(dirname(__FILE__) . '/../'));
+define ('CONF_PATH', ROOT_PATH . DS . 'conf' . DS);
 
 class HttpServer
 {
@@ -17,21 +23,25 @@ class HttpServer
 
     private function __construct()
     {
-        $configObj = new Yaf_Config_Ini(dirname(__FILE__) . '/conf/application.ini');
-        $configArr = $configObj->toArray();
+        define('IS_SWOOLE', TRUE);
+
+        $config = new Yaf_Config_Ini(CONF_PATH. 'application.ini');
+        $configArr = $config->toArray();
         $config = $configArr[$this->environment]['swoole'];
         extract($config);
 
         $http = new swoole_http_server($host, $port);
         $http->set(array(
-            'worker_num'                => $worker_num,
-            'task_worker_num'           => $task_worker_num,
+            'worker_num'                => $worker_num,         //worker进程数
+            'task_worker_num'           => $task_worker_num,    //task_worker进程数
             'daemonize'                 => $daemonize,
             'dispatch_mode'             => $dispatch_mode,
             'open_tcp_nodelay'          => $open_tcp_nodelay,
-            'log_file'                  => $log_file,
-            'heartbeat_check_interval'  => $heartbeat_check_interval,
-            'heartbeat_idle_time'       => $heartbeat_idle_time,
+            'open_tcp_keepalive'        => '',
+            'tcp_defer_accept'          => '',
+            'log_file'                  => ROOT_PATH.'/logs/swoole_http_server.log',
+            // 'heartbeat_check_interval'  => $heartbeat_check_interval,
+            // 'heartbeat_idle_time'       => $heartbeat_idle_time,
         ));
 
         $http->on('WorkerStart', array($this, 'onWorkerStart'));
@@ -43,21 +53,18 @@ class HttpServer
             if(in_array('/favicon.ico', [$request->server['path_info'],$request->server['request_uri']])){
                 return $response->end();
             }
-
             HttpServer::$header     = isset($request->header)   ? $request->header  : [];
             HttpServer::$get        = isset($request->get)      ? $request->get     : [];
             HttpServer::$post       = isset($request->post)     ? $request->post    : [];
             HttpServer::$cookies    = isset($request->cookies)  ? $request->cookies : [];
             HttpServer::$rawContent = $request->rawContent();
             HttpServer::$http       = $http;
-            $_SERVER['is_swoole']   = 1;//添加是否为swoole标识
 
             try {
-                ob_start();
                 $yaf_request = new Yaf_Request_Http($request->server['request_uri']);
-                $this->application->getDispatcher()->dispatch($yaf_request);
-                $result = ob_get_contents();
-                ob_end_clean();
+                $yaf_response = $this->application->getDispatcher()->dispatch($yaf_request);
+                $result = $yaf_response->getBody();
+                var_dump($result);
             } catch (Yaf_Exception $e) {
                 $result           = array();
                 $result['code']   = $e->getCode();
@@ -74,7 +81,7 @@ class HttpServer
 
     public function onWorkerStart($serv, $worker_id)
     {
-        define('APPLICATION_PATH', dirname(__FILE__));
+        define('APPLICATION_PATH', ROOT_PATH);
         define('APP_PATH', APPLICATION_PATH . '/application/');
 
         switch ($this->environment)
@@ -100,7 +107,7 @@ class HttpServer
         }
 
         $this->application = $application;
-        $this->application->bootstrap()->run();
+        $this->application->bootstrap();
 
         if ($worker_id >= $serv->setting['worker_num']) {
             cli_set_process_title("swoolehttp:task_worker");
