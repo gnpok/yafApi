@@ -3,6 +3,7 @@
 
 ##**项目描述**
 > 使用swoole_http_server + yaf 专注于网站api接口,同时能处理异步任务，如异步发送邮件，发送短信验证码等耗时相对长一点的任务
+
 > 本项目兼容php-fpm模式，不过在异步任务调用处要调整
 
 参照 [LinkedDestiny](https://github.com/LinkedDestiny/swoole-yaf)  
