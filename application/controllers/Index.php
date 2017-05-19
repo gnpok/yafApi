@@ -12,11 +12,20 @@ class IndexController extends ApiBaseController
 
     public function indexAction($name = "Stranger")
     {
-
-        $data = array('name' => 'Hello World');
+        //1.json格式化输出
         $this->jsonReturn(1,'wow',$data);
-        echo 'has next?';
-        //调用异步任务
-        // HttpServer::$http->task(time());
+
+        //2.异步任务
+        $taskdata = array(
+            'event' => 'email',
+            'data' => array(
+                'id' => 1,
+                'to' => 'aaaa'
+                )
+            );
+        //2.1 php-fpm模式下调用异步任务
+        TaskLibrary::createTask($taskdata);
+        //2.2 swoole调用异步任务
+        HttpServer::$http->task($taskdata);
     }
 }

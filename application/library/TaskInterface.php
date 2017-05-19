@@ -2,5 +2,5 @@
 
 interface TaskInterface{
 
-	public static function doTask($data = array());
+	public static function doTask(array $data);
 }

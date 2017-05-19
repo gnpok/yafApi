@@ -24,6 +24,7 @@ class HttpServer
     private function __construct()
     {
         define('IS_SWOOLE', TRUE);
+        define('_HttpServer',__CLASS__);
 
         $config = new Yaf_Config_Ini(CONF_PATH. 'application.ini');
         $configArr = $config->toArray();
@@ -82,27 +83,12 @@ class HttpServer
         define('APPLICATION_PATH', ROOT_PATH);
         define('APP_PATH', APPLICATION_PATH . '/application/');
 
-        switch ($this->environment)
-        {
-            case 'develop':
-                error_reporting(-1);
-                ini_set('display_errors', 1);
-                $application = new Yaf_Application(APPLICATION_PATH . "/conf/application.ini",'develop');
-            break;
+        //错误信息将写入swoole日志中
+        error_reporting(-1);
+        ini_set('display_errors', 1);
 
-            case 'product':
-                ini_set('display_errors', 0);
-                if (version_compare(PHP_VERSION, '5.3', '>='))
-                {
-                    error_reporting(E_ALL & ~E_NOTICE & ~E_DEPRECATED & ~E_STRICT & ~E_USER_NOTICE & ~E_USER_DEPRECATED);
-                }
-                else
-                {
-                    error_reporting(E_ALL & ~E_NOTICE & ~E_STRICT & ~E_USER_NOTICE);
-                }
-                $application = new Yaf_Application(APPLICATION_PATH . "/conf/application.ini");
-            break;
-        }
+        $environment = $this->environment;
+        $application = new Yaf_Application(APPLICATION_PATH . "/conf/application.ini",$environment);
 
         $this->application = $application;
         $this->application->bootstrap();
@@ -114,10 +100,11 @@ class HttpServer
         }
     }
 
-    public function onTask($serv, $taskId, $fromId, $data)
+    public function onTask($serv, $taskId, $fromId, array $taskdata)
     {
-        
-        $task = new TaskLibrary($data);
+        echo "新的异步任务[来自进程 {$fromId}，当前进程 {$taskId}],data:".json_encode($taskdata).PHP_EOL;
+        $task = TaskLibrary::createTask($taskdata);
+        var_dump($task);
     }
 
     public function onFinish($serv, $taskId, $data)
