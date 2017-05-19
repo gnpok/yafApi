@@ -59,21 +59,19 @@ class HttpServer
             HttpServer::$cookies    = isset($request->cookies)  ? $request->cookies : [];
             HttpServer::$rawContent = $request->rawContent();
             HttpServer::$http       = $http;
-
+            
             try {
                 $yaf_request = new Yaf_Request_Http($request->server['request_uri']);
                 $yaf_response = $this->application->getDispatcher()->dispatch($yaf_request);
-                $result = $yaf_response->getBody();
-                var_dump($result);
-            } catch (Yaf_Exception $e) {
-                $result           = array();
-                $result['code']   = $e->getCode();
-                $result['msg']    = $e->getMessage();
-                $result           = json_encode($result,JSON_UNESCAPED_UNICODE);
+                $json_result = $yaf_response->getBody();            
+            } catch (Exception $e) {
+                $result = array();
+                $result['code'] = $e->getCode();
+                $result['msg'] = $e->getMessage();
+                $json_result = json_encode($result);
             }
-
             $response->header('Content-Type', 'application/json; charset=utf-8');
-            $response->end($result);
+            $response->end($json_result);
         });
 
         $http->start();
@@ -118,6 +116,7 @@ class HttpServer
 
     public function onTask($serv, $taskId, $fromId, $data)
     {
+        
         $task = new TaskLibrary($data);
     }
 

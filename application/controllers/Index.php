@@ -14,7 +14,7 @@ class IndexController extends ApiBaseController
     {
 
         $data = array('name' => 'Hello World');
-        $this->jsonReturn(0,'wow',$data);
+        $this->jsonReturn(1,'wow',$data);
         echo 'has next?';
         //调用异步任务
         // HttpServer::$http->task(time());

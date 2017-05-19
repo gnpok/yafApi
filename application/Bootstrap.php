@@ -32,7 +32,7 @@ class Bootstrap extends Yaf_Bootstrap_Abstract
      */
     public function _initServices(Yaf_Dispatcher $dispatcher)
     {
-
+        //mysql-orm操作类可以使用medoo
     }
 
     public function _initPlugin(Yaf_Dispatcher $dispatcher)
@@ -81,7 +81,6 @@ class Bootstrap extends Yaf_Bootstrap_Abstract
         //在这里注册自己的view控制器，例如smarty,firekylin
         $dispatcher->disableView();//关闭view输出
         if(defined('IS_SWOOLE')){
-            echo 111;
             //若是swoole模式下，关闭默认输出，程序调用
             $dispatcher->returnResponse(true);
         }
