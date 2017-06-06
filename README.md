@@ -13,6 +13,9 @@
 ```
 //使用Nginx做反方代理，将所有请求代理到swoole端口上，配置如下
 location / {
+	proxy_set_header Connection "keep-alive";
+	proxy_set_header Host $http_host;
+	proxy_http_version 1.1;
 	proxy_pass http://127.0.0.1:9501;
 }
 
