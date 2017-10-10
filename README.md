@@ -11,7 +11,12 @@
 
 ##**使用说明**
 ```
-//使用Nginx做反方代理，将所有请求代理到swoole端口上，配置如下
+//1.安装yaf,swoole扩展
+composer install
+composer dump-autoload -o 
+
+
+//2.配置Nginx反向代理，将所有请求代理到swoole端口上，配置如下
 location / {
 	proxy_set_header Connection "keep-alive";
 	proxy_set_header Host $http_host;
