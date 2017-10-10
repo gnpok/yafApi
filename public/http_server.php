@@ -4,6 +4,8 @@
  * swoole http_server时候走这边
  */
 
+require_once dirname(__FILE__).'/../vendor/autoload.php';
+
 define ('DS', DIRECTORY_SEPARATOR);
 define ('ROOT_PATH', realpath(dirname(__FILE__) . '/../'));
 define ('CONF_PATH', ROOT_PATH . DS . 'conf' . DS);
@@ -40,7 +42,7 @@ class HttpServer
             'open_tcp_nodelay'          => $open_tcp_nodelay,
             'open_tcp_keepalive'        => '',
             'tcp_defer_accept'          => '',
-            'log_file'                  => ROOT_PATH.'/logs/swoole_http_server.log',
+            //'log_file'                  => ROOT_PATH.'/logs/swoole_http_server.log',
             // 'heartbeat_check_interval'  => $heartbeat_check_interval,
             // 'heartbeat_idle_time'       => $heartbeat_idle_time,
         ));
@@ -60,19 +62,15 @@ class HttpServer
             HttpServer::$cookies    = isset($request->cookies)  ? $request->cookies : [];
             HttpServer::$rawContent = $request->rawContent();
             HttpServer::$http       = $http;
-            
-            try {
-                $yaf_request = new Yaf_Request_Http($request->server['request_uri']);
-                $yaf_response = $this->application->getDispatcher()->dispatch($yaf_request);
-                $json_result = $yaf_response->getBody();            
-            } catch (Exception $e) {
-                $result = array();
-                $result['code'] = $e->getCode();
-                $result['msg'] = $e->getMessage();
-                $json_result = json_encode($result);
-            }
-            $response->header('Content-Type', 'application/json; charset=utf-8');
-            $response->end($json_result);
+
+            ob_start();
+            //所有的异常都交controllers中Error来获取
+            $yaf_request = new Yaf_Request_Http($request->server['request_uri']);
+            $this->application->getDispatcher()->dispatch($yaf_request);
+
+            $result = ob_get_contents();
+            ob_end_clean();
+            $response->end($result);
         });
 
         $http->start();

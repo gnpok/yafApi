@@ -24,21 +24,31 @@ class Bootstrap extends Yaf_Bootstrap_Abstract
      */
     public function _initOthers(Yaf_Dispatcher $dispatcher)
     {
-        Yaf_Loader::import(APP_PATH.DIRECTORY_SEPARATOR.'helper'.DIRECTORY_SEPARATOR.'functions.php');
+        $helper_path = APP_PATH.DIRECTORY_SEPARATOR.'helper'.DIRECTORY_SEPARATOR;
+        Yaf_Loader::import($helper_path.'functions.php');
     }
 
     /**
-     *初始化服务，如mysql,redis等 
+     * 加载插件 类似于中间件
+     */
+    public function _initPlugin(Yaf_Dispatcher $dispatcher)
+    {
+        // $dispatcher->registerPlugin(new SafePlugin());//注册一个安全过滤插件
+        $dispatcher->registerPlugin(new AuthenticationPlugin());
+    }
+
+    /**
+     *初始化服务，如mysql,redis,monolog等 
      */
     public function _initServices(Yaf_Dispatcher $dispatcher)
     {
-        //mysql-orm操作类可以使用medoo
+        //mysql操作类可以使用medoo
+
+        //redis使用predis
+
+        //monolog
     }
 
-    public function _initPlugin(Yaf_Dispatcher $dispatcher)
-    {
-        $dispatcher->registerPlugin(new SafePlugin());//注册一个安全过滤插件
-    }
 
     /**
      * 路由协议
@@ -78,11 +88,6 @@ class Bootstrap extends Yaf_Bootstrap_Abstract
 
     public function _initView(Yaf_Dispatcher $dispatcher)
     {
-        //在这里注册自己的view控制器，例如smarty,firekylin
         $dispatcher->disableView();//关闭view输出
-        if(defined('IS_SWOOLE')){
-            //若是swoole模式下，关闭默认输出，程序调用
-            $dispatcher->returnResponse(true);
-        }
     }
 }

@@ -1,0 +1,7 @@
+{
+    "require": {
+        "catfan/Medoo": "^1.4",
+        "firebase/php-jwt": "^5.0",
+        "monolog/monolog": "^1.23"
+    }
+}

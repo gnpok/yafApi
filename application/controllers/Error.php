@@ -12,6 +12,8 @@ class ErrorController extends Yaf_Controller_Abstract
     //从2.1开始, errorAction支持直接通过参数获取异常
     public function errorAction($exception)
     {
-    	// return true;
+        $debug = false;
+        $msg = $debug ? $exception->getMessage() : '程序出现异常';
+        return json_fail(500, $msg);
     }
 }
