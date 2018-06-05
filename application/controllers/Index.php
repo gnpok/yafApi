@@ -12,9 +12,12 @@ class IndexController extends Yaf_Controller_Abstract
     public function indexAction()
     {
         //1.json格式化输出
-        $db = Yaf_Registry::get('db');
-        $res = $db->select('admin_user','*');
-        return Response::success('success',$res);
+        //$db = Yaf_Registry::get('db');
+        //$res = $db->select('admin_user','*');
+        //return Response::success('success',$res);
+        $name = get('name','','trim');
+        return Response::success('ok',compact('name'));
+
     }
 
     public function taskAction()
