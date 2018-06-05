@@ -37,12 +37,13 @@ if (!function_exists('common_response_values')) {
     function common_response_values($type = 'get', $name = '', $default = '', $func = '')
     {
         $requestObj = Yaf_Dispatcher::getInstance()->getRequest();
+        $server = defined('SWOOLE_SERVER') ? SWOOLE_SERVER : '';
         switch (strtolower($type)) {
             case 'get':
-                $values = defined('IS_SWOOLE') ? HttpServer::$get : $requestObj->getQuery();
+                $values = defined('SWOOLE_SERVER') ? $server::$get : $requestObj->getQuery();
                 break;
             case 'post':
-                $values = defined('IS_SWOOLE') ? HttpServer::$post : $requestObj->getPost();
+                $values = defined('SWOOLE_SERVER') ? $server::$post : $requestObj->getPost();
                 break;
             default:
                 return false;
@@ -54,45 +55,5 @@ if (!function_exists('common_response_values')) {
             return empty($func) ? $value : call_user_func($func, $value);
         }
         return $values;
-    }
-}
-
-/**
- * 成功返回json数据
- * @param int $code 状态0为成功
- * @param string $msg 提示消息
- * @param array $data 数据
- * @return bool
- */
-if (!function_exists('json_success')) {
-    function json_success($code = 0, $msg = '', $data = array())
-    {
-        if ($code == 0) {
-            header('content-type:application/json;charset=utf8');
-            $response = compact('code', 'msg', 'data');
-            echo json_encode($response);
-            return true;
-        }
-        return false;
-    }
-}
-
-
-/**
- * 失败时候返回json数据
- * @param int $code 状态不为0
- * @param string $msg
- * @param array $data
- * @return bool
- */
-if (!function_exists('json_fail')) {
-    function json_fail($code = 1, $msg = '', $data = array())
-    {
-        if ($code != 0) {
-            header('content-type:application/json;charset=utf8');
-            $response = compact('code', 'msg', 'data');
-            echo json_encode($response);
-        }
-        return false;
     }
 }

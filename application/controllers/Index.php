@@ -12,20 +12,26 @@ class IndexController extends Yaf_Controller_Abstract
     public function indexAction()
     {
         //1.json格式化输出
-        json_success(0,'success'); //继续执行
-        //return json_fail(1,'fail');//停止继续执行
-
-        // //2.异步任务
-        // $taskdata = array(
-        //     'event' => 'email',
-        //     'data' => array(
-        //         'id' => 1,
-        //         'to' => 'aaaa'
-        //         )
-        //     );
-        // //2.1 php-fpm模式下调用异步任务
-        // TaskLibrary::createTask($taskdata);
-        // //2.2 swoole调用异步任务
-        // HttpServer::$http->task($taskdata);
+        $db = Yaf_Registry::get('db');
+        $res = $db->select('admin_user','*');
+        return Response::success('success',$res);
     }
+
+    public function taskAction()
+    {
+        //异步任务
+        $taskData = array(
+            'event' => 'email',
+            'data' => array(
+                'id' => 1,
+                'to' => 'aaaa'
+            )
+        );
+        //1 php-fpm模式下调用异步任务
+        //TaskFactory::createTask($taskData);
+        //2 swoole调用异步任务
+        $server = SWOOLE_SERVER;
+        $server::$httpServer->task($taskData);
+    }
+
 }

@@ -8,15 +8,16 @@
  * 这些方法, 都接受一个参数:Yaf_Dispatcher $dispatcher
  * 调用的次序, 和申明的次序相同
  */
+
+use Medoo\Medoo;
+
 class Bootstrap extends Yaf_Bootstrap_Abstract
 {
-    protected $arrConfig;
 
     public function _initConfig()
     {
         $objConfig = Yaf_Application::app()->getConfig();
         Yaf_Registry::set('config', $objConfig);
-        $this->arrConfig = $objConfig->toArray();
     }
 
     /**
@@ -24,7 +25,8 @@ class Bootstrap extends Yaf_Bootstrap_Abstract
      */
     public function _initOthers(Yaf_Dispatcher $dispatcher)
     {
-        $helper_path = APP_PATH.DIRECTORY_SEPARATOR.'helper'.DIRECTORY_SEPARATOR;
+
+        $helper_path = APPLICATION_PATH.'/application/helper/';
         Yaf_Loader::import($helper_path.'functions.php');
     }
 
@@ -34,7 +36,7 @@ class Bootstrap extends Yaf_Bootstrap_Abstract
     public function _initPlugin(Yaf_Dispatcher $dispatcher)
     {
         // $dispatcher->registerPlugin(new SafePlugin());//注册一个安全过滤插件
-        $dispatcher->registerPlugin(new AuthenticationPlugin());
+        //$dispatcher->registerPlugin(new AuthenticationPlugin());
     }
 
     /**
@@ -42,11 +44,23 @@ class Bootstrap extends Yaf_Bootstrap_Abstract
      */
     public function _initServices(Yaf_Dispatcher $dispatcher)
     {
+        $config = Yaf_Registry::get('config');
+
         //mysql操作类可以使用medoo
+        $database = new Medoo([
+            'database_type' => 'mysql',
+            'database_name' => $config->mysql['db'],
+            'server' =>$config->mysql['host'],
+            'username' => $config->mysql['user'],
+            'password' => $config->mysql['password'],
+            'port' => $config->mysql['port'],
+            'prefix' => $config->mysql['prefix'],
+            'charset' => 'utf8',
+        ]);
+        Yaf_Registry::set('db',$database);
+        //redis可以使用predis
 
-        //redis使用predis
-
-        //monolog
+        //记录日志可以使用monolog
     }
 
 
@@ -88,6 +102,7 @@ class Bootstrap extends Yaf_Bootstrap_Abstract
 
     public function _initView(Yaf_Dispatcher $dispatcher)
     {
-        $dispatcher->disableView();//关闭view输出
+        //关闭view输出
+        $dispatcher->disableView();
     }
 }
