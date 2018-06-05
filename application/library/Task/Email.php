@@ -3,7 +3,7 @@
 /**
  * 测试异步任务
  */
-class TaskEmail implements TaskInterface
+class Task_Email implements TaskInterface
 {
 
     public static function doTask(array $data)
